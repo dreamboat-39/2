@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 def fun(BondType, IssueYear):
     with open(BondType + "-" + str(IssueYear) + ".csv", "w") as file:
         file.write("ISIN,BondCode,Issuer,BondType,IssueDate,LatestRating\n") 
-
     for i in range(1, 13):
         m = f"{i:02d}" 
         url = "https://iftp.chinamoney.com.cn/english/bdInfo/" + BondType + "-" + str(IssueYear) + m + ".html"
@@ -11,13 +10,11 @@ def fun(BondType, IssueYear):
         if req.status_code != 200:
             print(f"Failed to fetch {url}: {req.status_code}")
             continue
-
         html = BeautifulSoup(req.text, "lxml")
         tab = html.find("table")
         if tab is None:
             print(f"No table found in {url}")
             continue
-
         tr = tab.find_all("tr")
         for i in tr[1:]:  
             td = i.find_all("td")
@@ -31,5 +28,4 @@ def fun(BondType, IssueYear):
             LatestRating = td[5].text.strip()
             with open(BondType + "-" + str(IssueYear) + ".csv", "a") as file:
                 file.write(",".join([ISIN, BondCode, Issuer, BondType_local, IssueDate, LatestRating]) + "\n")
-
 fun("Treasury Bond", 2023)
