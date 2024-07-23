@@ -1,3 +1,29 @@
+import re
+from typing import List, Dict, Union
+
+def reg_search(text: str, regex_list: List[Dict[str, str]]) -> List[Dict[str, Union[str, List[str]]]]:
+    results = []
+    for regex_dict in regex_list:
+        result_dict = {}
+        for key, pattern in regex_dict.items():
+            matches = re.findall(pattern, text)
+            if matches:
+                if key == '换股期限':
+                    # 将日期格式统一为 'YYYY-MM-DD'
+                    matches = [re.sub(r'(\d{4})年(\d{1,2})月(\d{1,2})日至(\d{4})年(\d{1,2})月(\d{1,2})日止', r'\1-\2-\3,\4-\5-\6', match) for match in matches]
+                result_dict[key] = matches
+        if result_dict:
+            results.append(result_dict)
+    return results
+
+# 示例文本和正则表达式列表
+text = '''标的证券：本期发行的证券为可交换为发行人所持中国长江电力股份有限公司股票（股票代码：600900.SH，股票简称：长江电力）的可交换公司债券。换股期限：本期可交换公司债券换股期限自可交换公司债券发行结束之日满 12 个月后的第一个交易日起至可交换债券到期日止，即2023年6月2日至2027年6月1日止。'''
+regex_list = [{
+    '标的证券': '股票代码：(\d{6}\.SH)','换股期限': '(\d{4}年\s*\d{1,2}月\s*\d{1,2}日至\s*\d{4}年\s*\d{1,2}月\s*\d{1,2}日止)'
+}]
+
+# 调用函数并打印结果
+print(reg_search(text, regex_list))
 这段代码定义了一个名为`reg_search`的函数，它接受一个字符串`text`和一个包含正则表达式字典的列表`regex_list`作为参数。函数的目的是在给定的文本中查找与正则表达式列表中的模式匹配的所有结果，并将这些结果以字典的形式返回。
 
 在这个例子中，`regex_list`包含两个键值对，分别对应于"标的证券"和"换股期限"。对于"标的证券"，使用正则表达式`'股票代码：(\d{6}\.SH)'`来匹配股票代码；对于"换股期限"，使用正则表达式`'(\d{4}年\s*\d{1,2}月\s*\d{1,2}日至\s*\d{4}年\s*\d{1,2}月\s*\d{1,2}日止)'`来匹配换股期限。
